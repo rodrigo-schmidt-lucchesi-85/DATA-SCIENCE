@@ -1,0 +1,42 @@
+version: '2'
+
+volumes:
+    surf-data:
+      driver: local 
+
+services:
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=guest
+    expose:
+      - 5672
+    ports:
+      - 5672:5672
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/DockerFile
+    volumes:
+      - .:/app
+    links:
+      - rabbitmq
+    depends_on:
+      - rabbitmq
+
+  mongodb:
+    image: mongo:latest
+    hostname: mongodb
+    restart: on-failure
+    container_name: mongodb
+    volumes:
+      - surf-data:/data/db
+    expose:
+      - 27017
+    ports:
+      - 27017:27017

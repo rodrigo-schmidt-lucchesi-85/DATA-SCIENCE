@@ -1,0 +1,32 @@
+version: '2'
+
+volumes:
+    surf-test:
+      driver: local 
+
+services:
+
+  scrapy-surf:
+    user: root
+    restart: 'no'
+    container_name: scrapy-surf
+    command: /bin/bash
+    volumes:
+      - .:/app
+    build:
+      context: .
+      dockerfile: docker/DockerFile-test
+    links:
+      - mongodb
+
+  mongodb:
+    hostname: mongodb
+    image: mongo:latest
+    restart: on-failure
+    container_name: mongodb
+    volumes:
+      - surf-test:/data/db
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
